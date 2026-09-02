@@ -23,7 +23,7 @@ function WhyChooseUs() {
         <div className="why-points">
 
           <div className="why-point">
-            <div className="why-icon">☕</div>
+            <div className="why-icon">Coffee</div>
 
             <div>
               <h3>Premium Quality Beans</h3>
@@ -35,7 +35,7 @@ function WhyChooseUs() {
           </div>
 
           <div className="why-point">
-            <div className="why-icon">◉</div>
+            <div className="why-icon">Quality</div>
 
             <div>
               <h3>Expertly Brewed</h3>
@@ -47,7 +47,7 @@ function WhyChooseUs() {
           </div>
 
           <div className="why-point">
-            <div className="why-icon">♡</div>
+            <div className="why-icon">Cozy</div>
 
             <div>
               <h3>Cozy Ambiance</h3>
@@ -59,7 +59,7 @@ function WhyChooseUs() {
           </div>
 
           <div className="why-point">
-            <div className="why-icon">♥</div>
+            <div className="why-icon">Love</div>
 
             <div>
               <h3>Made With Love</h3>
