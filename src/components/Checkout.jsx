@@ -59,7 +59,7 @@ function Checkout({ cart, setCart }) {
     try {
 
       const response = await fetch(
-        'http://localhost:8080/api/orders',
+        '/api/orders',
         {
           method: 'POST',
 

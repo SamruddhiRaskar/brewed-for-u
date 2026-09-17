@@ -35,7 +35,7 @@ function Login() {
       try {
 
         const response = await fetch(
-          'http://localhost:8080/api/signup',
+          '/api/signup',
           {
             method: 'POST',
             headers: {
@@ -91,7 +91,7 @@ function Login() {
 
       // Send login details to Go backend
       const response = await fetch(
-        'http://localhost:8080/api/login',
+        '/api/login',
         {
           method: 'POST',
           headers: {
