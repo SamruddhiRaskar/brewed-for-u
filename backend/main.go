@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"os"
 )
 
 func healthHandler(w http.ResponseWriter, r *http.Request) {
@@ -12,7 +13,6 @@ func healthHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-
 	json.NewEncoder(w).Encode(response)
 }
 
@@ -25,17 +25,30 @@ func main() {
 		return
 	}
 	defer db.Close()
+
+	// Get products from database
 	products := getProducts(db)
 	fmt.Println("Products:", products)
 
+	// API routes
 	http.HandleFunc("GET /api/health", healthHandler)
 	http.HandleFunc("GET /api/products", productsHandler(db))
 	http.HandleFunc("/api/orders", ordersHandler(db))
 	http.HandleFunc("/api/signup", signupHandler(db))
 	http.HandleFunc("/api/login", loginHandler(db))
-	fmt.Println("Brewed For U backend is running on http://localhost:8080")
 
-	err = http.ListenAndServe(":8080", nil)
+	// Get port from environment variable
+	port := os.Getenv("PORT")
+
+	// Use port 8080 when running locally
+	if port == "" {
+		port = "8080"
+	}
+
+	fmt.Println("Brewed For U backend is running on http://localhost:" + port)
+
+	// Start server
+	err = http.ListenAndServe(":"+port, nil)
 	if err != nil {
 		fmt.Println(err)
 	}
