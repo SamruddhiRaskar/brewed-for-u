@@ -124,6 +124,7 @@ function Footer() {
         </div>
 
       </div>
+      
 
 
       {/* Bottom */}
@@ -144,3 +145,6 @@ function Footer() {
 }
 
 export default Footer
+
+//semantic elements are tags which tell clearly define content like img tag table tag
+//non semantic tags are like div or  span

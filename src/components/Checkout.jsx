@@ -27,7 +27,12 @@ function Checkout({ cart, setCart }) {
   )
 
 
-  const placeOrder = () => {
+  const placeOrder = async () => {
+
+    if (cart.length === 0) {
+      alert('Your cart is empty.')
+      return
+    }
 
     if (!paymentMethod) {
       alert('Please select a payment method.')
@@ -51,13 +56,49 @@ function Checkout({ cart, setCart }) {
     }
 
 
-    const newOrderNumber =
-      'BFU-' + Math.floor(100000 + Math.random() * 900000)
+    try {
+
+      const response = await fetch(
+        'http://localhost:8080/api/orders',
+        {
+          method: 'POST',
+
+          headers: {
+            'Content-Type': 'application/json',
+          },
+
+          body: JSON.stringify({
+            payment_method: paymentMethod,
+
+            items: cart.map((item) => ({
+              product_id: item.id,
+              quantity: item.quantity,
+            })),
+          }),
+        }
+      )
 
 
-    setOrderNumber(newOrderNumber)
+      if (!response.ok) {
+        throw new Error('Failed to place order')
+      }
 
-    setOrderPlaced(true)
+
+      const order = await response.json()
+
+      console.log('Order created:', order)
+
+
+      setOrderNumber(order.order_number)
+
+      setOrderPlaced(true)
+
+    } catch (error) {
+
+      console.error('Order failed:', error)
+
+      alert('Failed to place order. Please try again.')
+    }
   }
 
 
@@ -164,6 +205,7 @@ function Checkout({ cart, setCart }) {
                 setCardNumber('')
                 setExpiry('')
                 setCvv('')
+                setOrderNumber('')
               }}
               className="new-order-button"
             >

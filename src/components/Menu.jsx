@@ -1,49 +1,27 @@
+import { useEffect, useState } from "react";
 function Menu({ addToCart }) {
 
-  const coffees = [
-    {
-      id: 1,
-      name: "Cappuccino",
-      description: "Rich espresso with smooth steamed milk.",
-      price: 180,
-      image: "/menu/cappuccino.jpg"
-    },
-    {
-      id: 2,
-      name: "Café Latte",
-      description: "Smooth espresso blended with creamy milk.",
-      price: 190,
-      image: "/menu/latte.jpg"
-    },
-    {
-      id: 3,
-      name: "Espresso",
-      description: "Strong and bold coffee with rich flavour.",
-      price: 140,
-      image: "/menu/espresso.jpg"
-    },
-    {
-      id: 4,
-      name: "Mocha",
-      description: "Chocolate, espresso and milk in one cup.",
-      price: 200,
-      image: "/menu/mocha.jpg"
-    },
-    {
-      id: 5,
-      name: "Americano",
-      description: "Espresso combined with hot water.",
-      price: 150,
-      image: "/menu/americano.jpg"
-    },
-    {
-      id: 6,
-      name: "Caramel Macchiato",
-      description: "Espresso, steamed milk and caramel.",
-      price: 220,
-      image: "/menu/macchiato.jpg"
-    }
-  ]
+const [coffees, setCoffees] = useState([]);
+
+useEffect(() => {
+  fetch("http://localhost:8080/api/products")
+    .then((response) => response.json())
+    .then((data) => {
+      console.log("Products from backend:", data);
+      const products = data.map((product) => ({
+        id: product.id,
+        name: product.name,
+        description: product.description,
+        price: product.price,
+        image: product.image_url
+      }));
+
+      setCoffees(products);
+    })
+    .catch((error) => {
+      console.error("Failed to fetch products:", error);
+    });
+}, []);
 
   return (
     <section id="menu" className="menu-section">

@@ -1,7 +1,9 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 
 function Login() {
+
+  const navigate = useNavigate()
 
   const [isSignup, setIsSignup] = useState(false)
 
@@ -10,13 +12,14 @@ function Login() {
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
 
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
 
     e.preventDefault()
 
-
+    // =========================
     // SIGN UP
+    // =========================
+
     if (isSignup) {
 
       if (!name || !email || !password || !confirmPassword) {
@@ -29,35 +32,111 @@ function Login() {
         return
       }
 
-      alert('Account created successfully! ☕')
+      try {
 
-      // After signup, show login form
-      setIsSignup(false)
+        const response = await fetch(
+          'http://localhost:8080/api/signup',
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              name: name,
+              email: email,
+              password: password,
+            }),
+          }
+        )
 
-      setName('')
-      setEmail('')
-      setPassword('')
-      setConfirmPassword('')
+        if (!response.ok) {
+          const errorMessage = await response.text()
+          alert(errorMessage)
+          return
+        }
+
+        const data = await response.json()
+
+        console.log('Signup successful:', data)
+
+        alert('Account created successfully! ☕')
+
+        // After signup, show login form
+        setIsSignup(false)
+        setName('')
+        setEmail('')
+        setPassword('')
+        setConfirmPassword('')
+
+      } catch (error) {
+
+        console.error('Signup failed:', error)
+        alert('Unable to connect to the server.')
+
+      }
 
       return
     }
 
-
+    // =========================
     // LOGIN
+    // =========================
+
     if (!email || !password) {
       alert('Please enter email and password.')
       return
     }
 
-    alert('Login successful! ☕')
+    try {
+
+      // Send login details to Go backend
+      const response = await fetch(
+        'http://localhost:8080/api/login',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            email: email,
+            password: password,
+          }),
+        }
+      )
+
+      // Login failed
+      if (!response.ok) {
+        const errorMessage = await response.text()
+        alert(errorMessage)
+        return
+      }
+
+      // Login successful
+      const data = await response.json()
+
+      console.log('Login successful:', data)
+
+      // Save logged-in user
+      localStorage.setItem('user', JSON.stringify(data))
+
+      alert(`Welcome ${data.name}! ☕`)
+
+      // Go back to home page
+      navigate('/')
+
+    } catch (error) {
+
+      console.error('Login failed:', error)
+      alert('Unable to connect to the server.')
+
+    }
   }
 
-
   return (
+
     <div className="login-page">
 
       <div className="login-box">
-
 
         {/* LOGO */}
 
@@ -68,13 +147,11 @@ function Login() {
           BREWED FOR U
         </Link>
 
-
         {/* HEADING */}
 
         <p className="login-label">
           {isSignup ? 'CREATE ACCOUNT' : 'WELCOME BACK'}
         </p>
-
 
         <h1>
           {isSignup
@@ -83,21 +160,16 @@ function Login() {
           }
         </h1>
 
-
         <p className="login-subtitle">
-
           {isSignup
             ? 'Create an account to enjoy the Brewed For U experience.'
             : 'Welcome back! Please enter your details.'
           }
-
         </p>
-
 
         {/* FORM */}
 
         <form onSubmit={handleSubmit}>
-
 
           {/* NAME - ONLY SIGN UP */}
 
@@ -122,7 +194,6 @@ function Login() {
 
           )}
 
-
           {/* EMAIL */}
 
           <div className="login-field">
@@ -138,10 +209,10 @@ function Login() {
               onChange={(e) =>
                 setEmail(e.target.value)
               }
+
             />
 
           </div>
-
 
           {/* PASSWORD */}
 
@@ -158,10 +229,10 @@ function Login() {
               onChange={(e) =>
                 setPassword(e.target.value)
               }
+
             />
 
           </div>
-
 
           {/* CONFIRM PASSWORD - ONLY SIGN UP */}
 
@@ -180,12 +251,12 @@ function Login() {
                 onChange={(e) =>
                   setConfirmPassword(e.target.value)
                 }
+
               />
 
             </div>
 
           )}
-
 
           {/* LOGIN OPTIONS */}
 
@@ -201,7 +272,6 @@ function Login() {
 
               </label>
 
-
               <a href="#forgot">
                 Forgot Password?
               </a>
@@ -210,23 +280,19 @@ function Login() {
 
           )}
 
-
           {/* BUTTON */}
 
           <button
             type="submit"
             className="login-button"
           >
-
             {isSignup
               ? 'CREATE ACCOUNT'
               : 'LOGIN'
             }
-
           </button>
 
         </form>
-
 
         {/* SWITCH LOGIN / SIGNUP */}
 
@@ -237,7 +303,6 @@ function Login() {
             : "Don't have an account?"
           }
 
-
           <button
             type="button"
             className="switch-auth"
@@ -245,16 +310,13 @@ function Login() {
               setIsSignup(!isSignup)
             }
           >
-
             {isSignup
               ? 'Login'
               : 'Sign Up'
             }
-
           </button>
 
         </p>
-
 
         {/* BACK HOME */}
 
@@ -265,12 +327,11 @@ function Login() {
           ← Back to Home
         </Link>
 
-
       </div>
 
     </div>
+
   )
 }
-
 
 export default Login

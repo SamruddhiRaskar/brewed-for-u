@@ -1,28 +1,54 @@
 import { useState, useEffect } from 'react'
+
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 
 import Navbar from './components/Navbar'
+
 import Hero from './components/Hero'
+
 import WhyChooseUs from './components/WhyChooseUsTemp.jsx'
+
 import Menu from './components/Menu'
+
 import Cart from './components/Cart'
+
 import Feedback from './components/Feedback'
+
 import Checkout from './components/Checkout'
+
 import Login from './components/Login'
+
 import Contact from './components/Contact'
+
 import Footer from './components/Footer'
 
 
 function Home() {
 
- const [cart, setCart] = useState(() => {
-  const savedCart = localStorage.getItem('cart')
+  const [cart, setCart] = useState(() => {
 
-  return savedCart ? JSON.parse(savedCart) : []
-})
-useEffect(() => {
-  localStorage.setItem('cart', JSON.stringify(cart))
-}, [cart])
+    const savedCart = localStorage.getItem('cart')
+
+    return savedCart ? JSON.parse(savedCart) : []
+
+  })
+
+
+  // Logged-in user
+  const [user, setUser] = useState(() => {
+
+    const savedUser = localStorage.getItem('user')
+
+    return savedUser ? JSON.parse(savedUser) : null
+
+  })
+
+
+  useEffect(() => {
+
+    localStorage.setItem('cart', JSON.stringify(cart))
+
+  }, [cart])
 
 
   const addToCart = (coffee) => {
@@ -55,11 +81,14 @@ useEffect(() => {
       ]
 
     })
+
   }
 
 
   return (
+
     <>
+
       <Navbar />
 
       <Hero />
@@ -81,16 +110,20 @@ useEffect(() => {
         cart={cart}
         setCart={setCart}
       />
+
       <Footer />
-     
+
     </>
+
   )
+
 }
 
 
 function App() {
 
   return (
+
     <BrowserRouter>
 
       <Routes>
@@ -105,15 +138,17 @@ function App() {
           element={<Login />}
         />
 
-         <Route
-    path="/contact"
-    element={<Contact />}
-  />
+        <Route
+          path="/contact"
+          element={<Contact />}
+        />
 
       </Routes>
 
     </BrowserRouter>
+
   )
+
 }
 
 
