@@ -4,6 +4,10 @@ import (
 	"database/sql"
 	"encoding/json"
 	"net/http"
+	"os"
+
+	"github.com/golang-jwt/jwt/v5"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type SignupRequest struct {
@@ -49,6 +53,17 @@ func signupHandler(db *sql.DB) http.HandlerFunc {
 			return
 		}
 
+		// Hash password before storing it
+		hashedPassword, err := bcrypt.GenerateFromPassword(
+			[]byte(request.Password),
+			bcrypt.DefaultCost,
+		)
+
+		if err != nil {
+			http.Error(w, "Failed to secure password", http.StatusInternalServerError)
+			return
+		}
+
 		// Insert user into PostgreSQL
 		var userID string
 
@@ -59,7 +74,7 @@ func signupHandler(db *sql.DB) http.HandlerFunc {
 		`,
 			request.Name,
 			request.Email,
-			request.Password,
+			string(hashedPassword),
 		).Scan(&userID)
 
 		if err != nil {
@@ -123,24 +138,52 @@ func loginHandler(db *sql.DB) http.HandlerFunc {
 		// Find user in PostgreSQL
 		var userID string
 		var name string
-		var password string
+		var email string
+		var hashedPassword string
 
 		err = db.QueryRow(`
-			SELECT id, name, password
+			SELECT id, name, email, password
 			FROM users
 			WHERE email = $1
 		`,
 			request.Email,
-		).Scan(&userID, &name, &password)
+		).Scan(&userID, &name, &email, &hashedPassword)
 
 		if err != nil {
 			http.Error(w, "Invalid email or password", http.StatusUnauthorized)
 			return
 		}
 
-		// Check password
-		if request.Password != password {
+		// Compare entered password with stored bcrypt hash
+		err = bcrypt.CompareHashAndPassword(
+			[]byte(hashedPassword),
+			[]byte(request.Password),
+		)
+
+		if err != nil {
 			http.Error(w, "Invalid email or password", http.StatusUnauthorized)
+			return
+		}
+
+		// Get JWT secret from environment variable
+		secret := os.Getenv("JWT_SECRET")
+
+		if secret == "" {
+			http.Error(w, "JWT secret is not configured", http.StatusInternalServerError)
+			return
+		}
+
+		// Create JWT token
+		token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+			"user_id": userID,
+			"email":   email,
+		})
+
+		// Sign the JWT
+		signedToken, err := token.SignedString([]byte(secret))
+
+		if err != nil {
+			http.Error(w, "Failed to create token", http.StatusInternalServerError)
 			return
 		}
 
@@ -148,7 +191,8 @@ func loginHandler(db *sql.DB) http.HandlerFunc {
 		response := map[string]string{
 			"id":      userID,
 			"name":    name,
-			"email":   request.Email,
+			"email":   email,
+			"token":   signedToken,
 			"message": "Login successful",
 		}
 

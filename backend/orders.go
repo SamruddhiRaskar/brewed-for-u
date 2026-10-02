@@ -38,26 +38,122 @@ func ordersHandler(db *sql.DB) http.HandlerFunc {
 		// CORS
 		w.Header().Set(
 			"Access-Control-Allow-Origin",
-			"http://localhost:5175",
+			"http://localhost:5173",
 		)
 
 		w.Header().Set(
 			"Access-Control-Allow-Headers",
-			"Content-Type",
+			"Content-Type, Authorization",
 		)
 
 		w.Header().Set(
 			"Access-Control-Allow-Methods",
-			"POST, OPTIONS",
+			"GET, POST, OPTIONS",
 		)
 
 		// Handle browser CORS preflight request
-		if r.Method == "OPTIONS" {
+		if r.Method == http.MethodOptions {
 			w.WriteHeader(http.StatusOK)
 			return
 		}
 
-		// Only allow POST
+		// Get authenticated user ID from JWT middleware
+		userID, ok := r.Context().Value("userID").(string)
+		if !ok || userID == "" {
+			http.Error(
+				w,
+				"User authentication required",
+				http.StatusUnauthorized,
+			)
+			return
+		}
+
+		// =========================================================
+		// GET /api/orders
+		// Get orders belonging to the logged-in user
+		// =========================================================
+
+		if r.Method == http.MethodGet {
+
+			rows, err := db.Query(`
+				SELECT
+					id,
+					order_number,
+					total_amount,
+					payment_method,
+					status
+				FROM orders
+				WHERE user_id = $1
+				ORDER BY created_at DESC
+			`, userID)
+
+			if err != nil {
+				fmt.Println("Failed to get orders:", err)
+
+				http.Error(
+					w,
+					"Failed to get orders",
+					http.StatusInternalServerError,
+				)
+				return
+			}
+
+			defer rows.Close()
+
+			orders := []Order{}
+
+			for rows.Next() {
+
+				var order Order
+
+				err := rows.Scan(
+					&order.ID,
+					&order.OrderNumber,
+					&order.TotalAmount,
+					&order.PaymentMethod,
+					&order.Status,
+				)
+
+				if err != nil {
+					fmt.Println("Failed to read order:", err)
+
+					http.Error(
+						w,
+						"Failed to read orders",
+						http.StatusInternalServerError,
+					)
+					return
+				}
+
+				orders = append(orders, order)
+			}
+
+			if err := rows.Err(); err != nil {
+				fmt.Println("Rows error:", err)
+
+				http.Error(
+					w,
+					"Failed to read orders",
+					http.StatusInternalServerError,
+				)
+				return
+			}
+
+			w.Header().Set(
+				"Content-Type",
+				"application/json",
+			)
+
+			json.NewEncoder(w).Encode(orders)
+
+			return
+		}
+
+		// =========================================================
+		// POST /api/orders
+		// Create a new order
+		// =========================================================
+
 		if r.Method != http.MethodPost {
 			http.Error(
 				w,
@@ -71,6 +167,7 @@ func ordersHandler(db *sql.DB) http.HandlerFunc {
 		var request CreateOrderRequest
 
 		err := json.NewDecoder(r.Body).Decode(&request)
+
 		if err != nil {
 			http.Error(
 				w,
@@ -102,6 +199,7 @@ func ordersHandler(db *sql.DB) http.HandlerFunc {
 
 		// Start database transaction
 		tx, err := db.Begin()
+
 		if err != nil {
 			fmt.Println("Failed to start transaction:", err)
 
@@ -181,20 +279,23 @@ func ordersHandler(db *sql.DB) http.HandlerFunc {
 		}
 
 		// Insert order into database
+		// The order is associated with the authenticated user.
 		err = tx.QueryRow(`
 			INSERT INTO orders (
 				order_number,
 				total_amount,
 				payment_method,
-				status
+				status,
+				user_id
 			)
-			VALUES ($1, $2, $3, $4)
+			VALUES ($1, $2, $3, $4, $5)
 			RETURNING id
 		`,
 			order.OrderNumber,
 			order.TotalAmount,
 			order.PaymentMethod,
 			order.Status,
+			userID,
 		).Scan(&order.ID)
 
 		if err != nil {
@@ -209,6 +310,7 @@ func ordersHandler(db *sql.DB) http.HandlerFunc {
 		}
 
 		fmt.Println("Order ID from database:", order.ID)
+		fmt.Println("Order belongs to user:", userID)
 
 		// Insert order items
 		for _, item := range items {

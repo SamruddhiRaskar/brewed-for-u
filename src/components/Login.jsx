@@ -2,18 +2,15 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 
 function Login() {
-
   const navigate = useNavigate()
 
   const [isSignup, setIsSignup] = useState(false)
-
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
 
   const handleSubmit = async (e) => {
-
     e.preventDefault()
 
     // =========================
@@ -21,7 +18,6 @@ function Login() {
     // =========================
 
     if (isSignup) {
-
       if (!name || !email || !password || !confirmPassword) {
         alert('Please fill all the fields.')
         return
@@ -33,9 +29,8 @@ function Login() {
       }
 
       try {
-
         const response = await fetch(
-          '/api/signup',
+          'http://localhost:8080/api/signup',
           {
             method: 'POST',
             headers: {
@@ -67,12 +62,9 @@ function Login() {
         setEmail('')
         setPassword('')
         setConfirmPassword('')
-
       } catch (error) {
-
         console.error('Signup failed:', error)
         alert('Unable to connect to the server.')
-
       }
 
       return
@@ -88,10 +80,9 @@ function Login() {
     }
 
     try {
-
       // Send login details to Go backend
       const response = await fetch(
-        '/api/login',
+        'http://localhost:8080/api/login',
         {
           method: 'POST',
           headers: {
@@ -119,27 +110,24 @@ function Login() {
       // Save logged-in user
       localStorage.setItem('user', JSON.stringify(data))
 
+      // Save JWT token
+      localStorage.setItem('bb_user_token', data.token)
+
       alert(`Welcome ${data.name}! ☕`)
 
       // Go back to home page
       navigate('/')
-
     } catch (error) {
-
       console.error('Login failed:', error)
       alert('Unable to connect to the server.')
-
     }
   }
 
   return (
-
     <div className="login-page">
-
       <div className="login-box">
 
         {/* LOGO */}
-
         <Link
           to="/"
           className="login-logo"
@@ -148,7 +136,6 @@ function Login() {
         </Link>
 
         {/* HEADING */}
-
         <p className="login-label">
           {isSignup ? 'CREATE ACCOUNT' : 'WELCOME BACK'}
         </p>
@@ -168,15 +155,11 @@ function Login() {
         </p>
 
         {/* FORM */}
-
         <form onSubmit={handleSubmit}>
 
           {/* NAME - ONLY SIGN UP */}
-
           {isSignup && (
-
             <div className="login-field">
-
               <label>
                 Full Name
               </label>
@@ -189,15 +172,11 @@ function Login() {
                   setName(e.target.value)
                 }
               />
-
             </div>
-
           )}
 
           {/* EMAIL */}
-
           <div className="login-field">
-
             <label>
               Email Address
             </label>
@@ -209,15 +188,11 @@ function Login() {
               onChange={(e) =>
                 setEmail(e.target.value)
               }
-
             />
-
           </div>
 
           {/* PASSWORD */}
-
           <div className="login-field">
-
             <label>
               Password
             </label>
@@ -229,17 +204,12 @@ function Login() {
               onChange={(e) =>
                 setPassword(e.target.value)
               }
-
             />
-
           </div>
 
           {/* CONFIRM PASSWORD - ONLY SIGN UP */}
-
           {isSignup && (
-
             <div className="login-field">
-
               <label>
                 Confirm Password
               </label>
@@ -251,37 +221,25 @@ function Login() {
                 onChange={(e) =>
                   setConfirmPassword(e.target.value)
                 }
-
               />
-
             </div>
-
           )}
 
           {/* LOGIN OPTIONS */}
-
           {!isSignup && (
-
             <div className="login-options">
-
               <label>
-
                 <input type="checkbox" />
-
                 Remember me
-
               </label>
 
               <a href="#forgot">
                 Forgot Password?
               </a>
-
             </div>
-
           )}
 
           {/* BUTTON */}
-
           <button
             type="submit"
             className="login-button"
@@ -291,13 +249,10 @@ function Login() {
               : 'LOGIN'
             }
           </button>
-
         </form>
 
         {/* SWITCH LOGIN / SIGNUP */}
-
         <p className="signup-text">
-
           {isSignup
             ? 'Already have an account?'
             : "Don't have an account?"
@@ -315,11 +270,9 @@ function Login() {
               : 'Sign Up'
             }
           </button>
-
         </p>
 
         {/* BACK HOME */}
-
         <Link
           to="/"
           className="back-home"
@@ -328,9 +281,7 @@ function Login() {
         </Link>
 
       </div>
-
     </div>
-
   )
 }
 

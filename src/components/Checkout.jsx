@@ -34,6 +34,7 @@ function Checkout({ cart, setCart }) {
       return
     }
 
+
     if (!paymentMethod) {
       alert('Please select a payment method.')
       return
@@ -59,12 +60,13 @@ function Checkout({ cart, setCart }) {
     try {
 
       const response = await fetch(
-        '/api/orders',
+        'http://localhost:8080/api/orders',
         {
           method: 'POST',
 
           headers: {
             'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('bb_user_token')}`,
           },
 
           body: JSON.stringify({

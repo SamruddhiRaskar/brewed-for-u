@@ -1,29 +1,36 @@
 import { useEffect, useState } from "react";
+
 function Menu({ addToCart }) {
 
-const [coffees, setCoffees] = useState([]);
+  const [coffees, setCoffees] = useState([]);
 
-useEffect(() => {
-  fetch("/api/products")
-    .then((response) => response.json())
-    .then((data) => {
-      console.log("Products from backend:", data);
-      const products = data.map((product) => ({
-        id: product.id,
-        name: product.name,
-        description: product.description,
-        price: product.price,
-        image: product.image_url
-      }));
+  useEffect(() => {
 
-      setCoffees(products);
-    })
-    .catch((error) => {
-      console.error("Failed to fetch products:", error);
-    });
-}, []);
+    // Get products from public backend API
+    fetch("http://localhost:8080/api/products")
+      .then((response) => response.json())
+      .then((data) => {
+
+        console.log("Products from backend:", data);
+
+        const products = data.map((product) => ({
+          id: product.id,
+          name: product.name,
+          description: product.description,
+          price: product.price,
+          image: product.image_url
+        }));
+
+        setCoffees(products);
+      })
+      .catch((error) => {
+        console.error("Failed to fetch products:", error);
+      });
+
+  }, []);
 
   return (
+
     <section id="menu" className="menu-section">
 
       <div className="menu-heading">
@@ -96,6 +103,7 @@ useEffect(() => {
                       ADD TO CART
                     </button>
 
+
                     <button
                       className="order-button"
                       onClick={() => addToCart(coffee)}
@@ -118,7 +126,8 @@ useEffect(() => {
       </div>
 
     </section>
-  )
+
+  );
 }
 
-export default Menu
+export default Menu;

@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+
+	"github.com/joho/godotenv"
 )
 
 func healthHandler(w http.ResponseWriter, r *http.Request) {
@@ -18,12 +20,19 @@ func healthHandler(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 
+	// Load environment variables from .env
+	err := godotenv.Load()
+	if err != nil {
+		fmt.Println("Warning: .env file not found")
+	}
+
 	// Connect to PostgreSQL
 	db, err := connectDB()
 	if err != nil {
 		fmt.Println("Database connection failed:", err)
 		return
 	}
+
 	defer db.Close()
 
 	// Get products from database
@@ -32,8 +41,17 @@ func main() {
 
 	// API routes
 	http.HandleFunc("GET /api/health", healthHandler)
-	http.HandleFunc("GET /api/products", productsHandler(db))
-	http.HandleFunc("/api/orders", ordersHandler(db))
+
+	// Public menu API
+	http.HandleFunc("/api/products", productsHandler(db))
+
+	// Protected orders API
+	http.Handle(
+		"/api/orders",
+		authMiddleware(http.HandlerFunc(ordersHandler(db))),
+	)
+
+	// Authentication APIs
 	http.HandleFunc("/api/signup", signupHandler(db))
 	http.HandleFunc("/api/login", loginHandler(db))
 
