@@ -7,7 +7,7 @@ function Menu({ addToCart }) {
   useEffect(() => {
 
     // Get products from public backend API
-    fetch("http://localhost:8080/api/products")
+    fetch("/api/products")
       .then((response) => response.json())
       .then((data) => {
 
