@@ -1,17 +1,13 @@
 import { useState } from 'react'
 
 function Checkout({ cart, setCart }) {
-
   const [paymentMethod, setPaymentMethod] = useState('')
-
   const [upiId, setUpiId] = useState('')
   const [cardNumber, setCardNumber] = useState('')
   const [expiry, setExpiry] = useState('')
   const [cvv, setCvv] = useState('')
-
   const [orderPlaced, setOrderPlaced] = useState(false)
   const [orderNumber, setOrderNumber] = useState('')
-
 
   const cartTotal = cart.reduce(
     (total, item) =>
@@ -19,33 +15,27 @@ function Checkout({ cart, setCart }) {
     0
   )
 
-
   const cartCount = cart.reduce(
     (total, item) =>
       total + item.quantity,
     0
   )
 
-
   const placeOrder = async () => {
-
     if (cart.length === 0) {
       alert('Your cart is empty.')
       return
     }
-
 
     if (!paymentMethod) {
       alert('Please select a payment method.')
       return
     }
 
-
     if (paymentMethod === 'UPI' && !upiId) {
       alert('Please enter your UPI ID.')
       return
     }
-
 
     if (
       (paymentMethod === 'Credit Card' ||
@@ -56,22 +46,17 @@ function Checkout({ cart, setCart }) {
       return
     }
 
-
     try {
-
       const response = await fetch(
-        'http://localhost:8080/api/orders',
+        '/api/orders',
         {
           method: 'POST',
-
           headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${localStorage.getItem('bb_user_token')}`,
           },
-
           body: JSON.stringify({
             payment_method: paymentMethod,
-
             items: cart.map((item) => ({
               product_id: item.id,
               quantity: item.quantity,
@@ -80,45 +65,32 @@ function Checkout({ cart, setCart }) {
         }
       )
 
-
       if (!response.ok) {
         throw new Error('Failed to place order')
       }
 
-
       const order = await response.json()
-
       console.log('Order created:', order)
 
-
       setOrderNumber(order.order_number)
-
       setOrderPlaced(true)
-
     } catch (error) {
-
       console.error('Order failed:', error)
-
       alert('Failed to place order. Please try again.')
     }
   }
-
 
   const printReceipt = () => {
     window.print()
   }
 
-
   if (orderPlaced) {
-
     return (
       <section
         id="receipt"
         className="checkout-section"
       >
-
         <div className="receipt">
-
           <p className="checkout-label">
             BREWED FOR U
           </p>
@@ -131,9 +103,7 @@ function Checkout({ cart, setCart }) {
             Thank you for your order.
           </p>
 
-
           <div className="receipt-details">
-
             <div>
               <span>Order Number</span>
               <strong>{orderNumber}</strong>
@@ -148,19 +118,14 @@ function Checkout({ cart, setCart }) {
               <span>Total Items</span>
               <strong>{cartCount}</strong>
             </div>
-
           </div>
 
-
           <div className="receipt-items">
-
             {cart.map((item) => (
-
               <div
                 className="receipt-item"
                 key={item.id}
               >
-
                 <span>
                   {item.name} × {item.quantity}
                 </span>
@@ -168,16 +133,11 @@ function Checkout({ cart, setCart }) {
                 <strong>
                   ₹{item.price * item.quantity}
                 </strong>
-
               </div>
-
             ))}
-
           </div>
 
-
           <div className="receipt-total">
-
             <span>
               Total
             </span>
@@ -185,12 +145,9 @@ function Checkout({ cart, setCart }) {
             <strong>
               ₹{cartTotal}
             </strong>
-
           </div>
 
-
           <div className="receipt-buttons">
-
             <button
               onClick={printReceipt}
               className="print-button"
@@ -213,29 +170,21 @@ function Checkout({ cart, setCart }) {
             >
               NEW ORDER
             </button>
-
           </div>
-
         </div>
-
       </section>
     )
   }
-
 
   return (
     <section
       id="checkout"
       className="checkout-section"
     >
-
       <div className="checkout-container">
 
-
         {/* HEADING */}
-
         <div className="checkout-heading">
-
           <p className="checkout-label">
             CHECKOUT
           </p>
@@ -247,31 +196,22 @@ function Checkout({ cart, setCart }) {
           <span>
             Choose your preferred payment method.
           </span>
-
         </div>
-
 
         <div className="checkout-content">
 
-
           {/* ORDER SUMMARY */}
-
           <div className="order-summary">
-
             <h3>
               Your Order
             </h3>
 
-
             {cart.map((item) => (
-
               <div
                 className="summary-item"
                 key={item.id}
               >
-
                 <div>
-
                   <strong>
                     {item.name}
                   </strong>
@@ -279,20 +219,15 @@ function Checkout({ cart, setCart }) {
                   <span>
                     Quantity: {item.quantity}
                   </span>
-
                 </div>
 
                 <strong>
                   ₹{item.price * item.quantity}
                 </strong>
-
               </div>
-
             ))}
 
-
             <div className="summary-total">
-
               <span>
                 Total
               </span>
@@ -300,26 +235,18 @@ function Checkout({ cart, setCart }) {
               <strong>
                 ₹{cartTotal}
               </strong>
-
             </div>
-
           </div>
 
-
           {/* PAYMENT */}
-
           <div className="payment-box">
-
             <h3>
               Select Payment Method
             </h3>
 
-
             <div className="payment-options">
 
-
               {/* UPI */}
-
               <label
                 className={
                   paymentMethod === 'UPI'
@@ -327,7 +254,6 @@ function Checkout({ cart, setCart }) {
                     : 'payment-option'
                 }
               >
-
                 <input
                   type="radio"
                   name="payment"
@@ -340,21 +266,15 @@ function Checkout({ cart, setCart }) {
 
                 <div>
                   <strong>UPI</strong>
-
                   <span>
                     Google Pay, PhonePe, Paytm, etc.
                   </span>
                 </div>
-
               </label>
 
-
               {/* UPI FORM */}
-
               {paymentMethod === 'UPI' && (
-
                 <div className="payment-form">
-
                   <label>
                     UPI ID
                   </label>
@@ -367,14 +287,10 @@ function Checkout({ cart, setCart }) {
                       setUpiId(e.target.value)
                     }
                   />
-
                 </div>
-
               )}
 
-
               {/* CREDIT CARD */}
-
               <label
                 className={
                   paymentMethod === 'Credit Card'
@@ -382,7 +298,6 @@ function Checkout({ cart, setCart }) {
                     : 'payment-option'
                 }
               >
-
                 <input
                   type="radio"
                   name="payment"
@@ -395,17 +310,13 @@ function Checkout({ cart, setCart }) {
 
                 <div>
                   <strong>Credit Card</strong>
-
                   <span>
                     Visa, Mastercard, RuPay
                   </span>
                 </div>
-
               </label>
 
-
               {/* DEBIT CARD */}
-
               <label
                 className={
                   paymentMethod === 'Debit Card'
@@ -413,7 +324,6 @@ function Checkout({ cart, setCart }) {
                     : 'payment-option'
                 }
               >
-
                 <input
                   type="radio"
                   name="payment"
@@ -426,22 +336,16 @@ function Checkout({ cart, setCart }) {
 
                 <div>
                   <strong>Debit Card</strong>
-
                   <span>
                     Visa, Mastercard, RuPay
                   </span>
                 </div>
-
               </label>
 
-
               {/* CARD FORM */}
-
               {(paymentMethod === 'Credit Card' ||
                 paymentMethod === 'Debit Card') && (
-
                 <div className="payment-form">
-
                   <label>
                     Card Number
                   </label>
@@ -456,11 +360,8 @@ function Checkout({ cart, setCart }) {
                     }
                   />
 
-
                   <div className="card-row">
-
                     <div>
-
                       <label>
                         Expiry Date
                       </label>
@@ -474,12 +375,9 @@ function Checkout({ cart, setCart }) {
                           setExpiry(e.target.value)
                         }
                       />
-
                     </div>
 
-
                     <div>
-
                       <label>
                         CVV
                       </label>
@@ -493,18 +391,12 @@ function Checkout({ cart, setCart }) {
                           setCvv(e.target.value)
                         }
                       />
-
                     </div>
-
                   </div>
-
                 </div>
-
               )}
 
-
               {/* CASH */}
-
               <label
                 className={
                   paymentMethod === 'Cash'
@@ -512,7 +404,6 @@ function Checkout({ cart, setCart }) {
                     : 'payment-option'
                 }
               >
-
                 <input
                   type="radio"
                   name="payment"
@@ -524,7 +415,6 @@ function Checkout({ cart, setCart }) {
                 />
 
                 <div>
-
                   <strong>
                     Cash
                   </strong>
@@ -532,27 +422,18 @@ function Checkout({ cart, setCart }) {
                   <span>
                     Pay at the café
                   </span>
-
                 </div>
-
               </label>
 
-
               {/* CASH MESSAGE */}
-
               {paymentMethod === 'Cash' && (
-
                 <div className="cash-message">
-
                   💵 You can pay at the café when
                   you collect your order.
-
                 </div>
-
               )}
 
             </div>
-
 
             <button
               className="place-order-button"
@@ -562,11 +443,8 @@ function Checkout({ cart, setCart }) {
             </button>
 
           </div>
-
         </div>
-
       </div>
-
     </section>
   )
 }
