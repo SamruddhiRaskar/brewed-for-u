@@ -204,8 +204,8 @@ a {
 }
 
 .why-icon {
-  width: 42px;
-  height: 42px;
+  width: 28px;
+  height: 28px;
 
   flex-shrink: 0;
 
@@ -213,12 +213,12 @@ a {
   align-items: center;
   justify-content: center;
 
-  border: 1px solid #9a5b35;
-  border-radius: 50%;
-
   color: #9a5b35;
 
-  font-size: 19px;
+  font-size: 22px;
+  line-height: 1;
+
+  margin-top: 2px;
 }
 
 .why-point h3 {

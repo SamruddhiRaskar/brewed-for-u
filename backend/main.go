@@ -54,6 +54,7 @@ func main() {
 	// Authentication APIs
 	http.HandleFunc("/api/signup", signupHandler(db))
 	http.HandleFunc("/api/login", loginHandler(db))
+	http.HandleFunc("/api/google-login", googleLoginHandler(db))
 
 	// Get port from environment variable
 	port := os.Getenv("PORT")
