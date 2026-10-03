@@ -11,7 +11,7 @@ import App from './App.jsx'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <App /> //we are displaying app
+    <App /> 
   </StrictMode>,
 )
 //render says display react component inside the root
